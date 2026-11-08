@@ -86,7 +86,7 @@ button.main{width:100%;margin-top:18px;padding:14px;border:0;border-radius:12px;
 <div id="amt"></div>
 <div id="who"></div>
 <button class="small" id="copy">Copy UPI link</button>
-<button class="small" id="open">Open in UPI app</button>
+<button class="small" id="dl">Download QR</button>
 <div class="hint" id="tip" style="display:none">Press and hold (or right-click) the QR to save the image.</div>
 </div>
 </div>
@@ -121,9 +121,9 @@ function make(){
   box.style.display="block";$("ph").style.display="none";
   $("amt").style.display="block";$("amt").textContent="₹"+amt.toLocaleString("en-IN",{minimumFractionDigits:amt%1?2:0});
   $("who").style.display="block";$("who").textContent=(name?name+" · ":"")+vpa;
-  $("copy").style.display="inline-block";$("open").style.display="inline-block";$("tip").style.display="block";
+  $("copy").style.display="inline-block";$("dl").style.display="inline-block";$("tip").style.display="block";
 }
-$("open").onclick=function(){if(link)window.location.href=link};
+$("dl").onclick=function(){var s=$("qr").querySelector("canvas");if(!s)return;var c=document.createElement("canvas"),W=400,H=500,x;c.width=W;c.height=H;x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,W,H);x.imageSmoothingEnabled=false;x.drawImage(s,40,40,320,320);x.textAlign="center";x.fillStyle="#000";x.font="bold 36px sans-serif";x.fillText($("amt").textContent,W/2,420,W-40);x.fillStyle="#555";x.font="18px sans-serif";x.fillText($("who").textContent,W/2,460,W-40);var a=document.createElement("a");a.download="upi-qr.png";a.href=c.toDataURL("image/png");document.body.appendChild(a);a.click();a.remove()};
 $("go").onclick=make;
 ["id","name","amount","note"].forEach(function(i){$(i).addEventListener("keydown",function(e){if(e.key==="Enter")make()})});
 $("copy").onclick=function(){
