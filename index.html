@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>UPI QR Maker</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f6f4ee;--card:#fff;--ink:#1c1b18;--mut:#6b675d;--line:#e2ded2;--acc:#0f6b4f;--accink:#fff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14130f;--card:#1e1d18;--ink:#f1efe7;--mut:#9b978a;--line:#33312a;--acc:#3fbf93;--accink:#0b1f17}}
+:root[data-theme="dark"]{--bg:#14130f;--card:#1e1d18;--ink:#f1efe7;--mut:#9b978a;--line:#33312a;--acc:#3fbf93;--accink:#0b1f17}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,"Times New Roman",serif;min-height:100%}
+main{max-width:860px;margin:0 auto;padding:28px 18px 40px}
+h1{font-size:30px;margin:0 0 4px;letter-spacing:-.5px}
+p.sub{margin:0 0 24px;color:var(--mut);font-family:system-ui,sans-serif;font-size:15px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
+label{display:block;font:600 13px system-ui,sans-serif;margin:14px 0 6px;color:var(--mut)}
+label:first-child{margin-top:0}
+input,select{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:16px system-ui,sans-serif}
+input:focus,select:focus{outline:2px solid var(--acc);outline-offset:1px}
+.row{display:flex;gap:8px}
+.row #handle{width:46%}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{border:1px solid var(--line);background:none;color:var(--ink);padding:6px 12px;border-radius:99px;font:14px system-ui,sans-serif;cursor:pointer}
+.chip:hover{border-color:var(--acc)}
+button.main{width:100%;margin-top:18px;padding:14px;border:0;border-radius:12px;background:var(--acc);color:var(--accink);font:600 16px system-ui,sans-serif;cursor:pointer}
+.out{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:360px}
+#qr{background:#fff;padding:14px;border-radius:12px;display:none}
+#qr img,#qr canvas{display:block}
+#amt{font-size:34px;font-weight:700;margin:14px 0 2px;display:none}
+#who{color:var(--mut);font:14px system-ui,sans-serif;display:none;word-break:break-all}
+#ph{color:var(--mut);font:15px system-ui,sans-serif}
+#err{color:#c0392b;font:14px system-ui,sans-serif;margin-top:10px;min-height:18px}
+.small{margin-top:12px;padding:8px 14px;border:1px solid var(--line);background:none;color:var(--ink);border-radius:10px;font:14px system-ui,sans-serif;cursor:pointer;display:none}
+.hint{font:12px system-ui,sans-serif;color:var(--mut);margin-top:6px}
+</style>
+</head>
+<body>
+<main>
+<h1>UPI QR Maker</h1>
+<p class="sub">Create a QR with a fixed amount. Works with any UPI app.</p>
+<div class="grid">
+<div class="card">
+<label for="id">UPI ID or UPI number</label>
+<div class="row">
+<input id="id" placeholder="name@bank or 9876543210" autocomplete="off" inputmode="email">
+<input id="handle" list="handles" value="@ybl" placeholder="@handle" autocomplete="off" autocapitalize="none" title="Handle used when you enter a phone number. Tap to pick, or type any handle." onfocus="this.dataset.p=this.value;this.value=''" onblur="if(!this.value.trim())this.value=this.dataset.p||'@ybl'">
+<datalist id="handles">
+<option value="@ybl">PhonePe (Yes Bank)</option><option value="@ibl">PhonePe (ICICI)</option><option value="@axl">PhonePe (Axis)</option>
+<option value="@okicici">Google Pay</option><option value="@okhdfcbank">Google Pay</option><option value="@oksbi">Google Pay</option><option value="@okaxis">Google Pay</option>
+<option value="@paytm">Paytm</option><option value="@pthdfc">Paytm (HDFC)</option><option value="@ptsbi">Paytm (SBI)</option><option value="@ptyes">Paytm (Yes)</option><option value="@ptaxis">Paytm (Axis)</option>
+<option value="@apl">Amazon Pay</option><option value="@yapl">Amazon Pay</option><option value="@upi">BHIM</option>
+<option value="@freecharge">Freecharge</option><option value="@fbl">Federal Bank</option><option value="@federal">Federal Bank</option><option value="@fifederal">Fi Money</option>
+<option value="@icici">ICICI Bank</option><option value="@myicici">ICICI Bank</option><option value="@tapicici">ICICI Bank</option><option value="@sbi">SBI</option><option value="@hdfcbank">HDFC Bank</option><option value="@payzapp">HDFC PayZapp</option>
+<option value="@axisbank">Axis Bank</option><option value="@axisb">Axis Bank</option><option value="@okbizaxis">Google Pay Business</option><option value="@kotak">Kotak</option><option value="@kmbl">Kotak</option><option value="@kmb">Kotak</option>
+<option value="@yesbank">Yes Bank</option><option value="@yesbankltd">Yes Bank</option><option value="@yespay">Yes Bank</option><option value="@pnb">Punjab National Bank</option><option value="@boi">Bank of India</option><option value="@barodampay">Bank of Baroda</option>
+<option value="@cnrb">Canara Bank</option><option value="@unionbank">Union Bank</option><option value="@unionbankofindia">Union Bank</option><option value="@uboi">Union Bank</option><option value="@ubi">Union Bank</option><option value="@indianbank">Indian Bank</option><option value="@iob">Indian Overseas Bank</option>
+<option value="@cbin">Central Bank</option><option value="@psb">Punjab & Sind Bank</option><option value="@allbank">Allahabad Bank</option><option value="@albk">Allahabad Bank</option><option value="@idfcbank">IDFC First</option><option value="@idfcfirst">IDFC First</option><option value="@cmsidfc">IDFC First</option>
+<option value="@indus">IndusInd</option><option value="@rbl">RBL Bank</option><option value="@aubank">AU Small Finance</option><option value="@ausmall">AU Small Finance</option><option value="@bandhan">Bandhan Bank</option><option value="@dbs">DBS</option><option value="@dcb">DCB Bank</option>
+<option value="@equitas">Equitas</option><option value="@hsbc">HSBC</option><option value="@cub">City Union Bank</option><option value="@kbl">Karnataka Bank</option><option value="@sib">South Indian Bank</option><option value="@tmb">Tamilnad Mercantile</option>
+<option value="@csbpay">CSB Bank</option><option value="@dlb">Dhanlaxmi Bank</option><option value="@jsb">Jana / Janata SB</option><option value="@mahb">Bank of Maharashtra</option><option value="@postbank">India Post Payments Bank</option><option value="@ezeepay">Ezeepay</option>
+<option value="@airtel">Airtel Payments Bank</option><option value="@airp">Airtel Payments Bank</option><option value="@jio">Jio Payments Bank</option><option value="@abfspay">Aditya Birla</option><option value="@fam">FamPay</option>
+<option value="@slice">Slice</option><option value="@jupiteraxis">Jupiter</option><option value="@timecosmos">Time Cosmos</option><option value="@ikwik">MobiKwik</option><option value="@kaypay">Kay Pay</option><option value="@lime">Lime</option>
+<option value="@niyoicici">Niyo</option><option value="@waaxis">WhatsApp Pay</option><option value="@wahdfcbank">WhatsApp Pay</option><option value="@wasbi">WhatsApp Pay</option><option value="@rajgovhdfcbank">Rajasthan Govt</option><option value="@gmobank">GMO Bank</option>
+<option value="@nsdl">NSDL Payments Bank</option><option value="@pingpay">Ping Pay</option><option value="@imobile">iMobile</option><option value="@bpaywap">BPay</option><option value="@abcdicici">ICICI</option>
+</datalist>
+</div>
+<div class="hint">If you enter a phone number, the selected handle is added to it.</div>
+<label for="name">Payee name (optional)</label>
+<input id="name" placeholder="Shop or person name">
+<label for="amount">Amount (₹)</label>
+<input id="amount" type="number" min="1" step="0.01" inputmode="decimal" placeholder="e.g. 250">
+<div class="chips" id="chips"></div>
+<label for="note">Note (optional)</label>
+<input id="note" maxlength="50" placeholder="e.g. Invoice 102">
+<button class="main" id="go">Generate QR</button>
+<div id="err"></div>
+</div>
+<div class="card out">
+<div id="ph">Your QR will appear here.</div>
+<div id="qr"></div>
+<div id="amt"></div>
+<div id="who"></div>
+<button class="small" id="copy">Copy UPI link</button>
+<button class="small" id="open">Open in UPI app</button>
+<div class="hint" id="tip" style="display:none">Press and hold (or right-click) the QR to save the image.</div>
+</div>
+</div>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+var $=function(i){return document.getElementById(i)};
+var link="",qr=null;
+[100,200,500,1000,2000].forEach(function(v){
+  var b=document.createElement("button");b.className="chip";b.textContent="₹"+v;
+  b.onclick=function(){$("amount").value=v;make()};$("chips").appendChild(b);
+});
+function make(){
+  var err=$("err");err.textContent="";
+  var raw=$("id").value.trim().replace(/\s+/g,"");
+  var amt=parseFloat($("amount").value);
+  if(!raw){err.textContent="Enter a UPI ID or number.";return}
+  var vpa;
+  if(/^(\+?91)?[6-9]\d{9}$/.test(raw)){var h=$("handle").value.trim().replace(/^@*/,"@").toLowerCase();if(!/^@[a-z][a-z0-9.\-]{1,64}$/.test(h)){err.textContent="Enter a valid handle like @ybl.";return}vpa=raw.slice(-10)+h}
+  else if(/^[\w.\-]{2,256}@[a-zA-Z][a-zA-Z0-9.\-]{1,64}$/.test(raw)){vpa=raw}
+  else{err.textContent="That doesn’t look like a valid UPI ID or 10-digit number.";return}
+  if(!(amt>0)||amt>100000000){err.textContent="Enter a valid amount.";return}
+  amt=Math.round(amt*100)/100;
+  var name=$("name").value.trim(),note=$("note").value.trim();
+  link="upi://pay?pa="+encodeURIComponent(vpa).replace("%40","@")+
+    (name?"&pn="+encodeURIComponent(name):"")+
+    "&am="+amt.toFixed(2)+"&cu=INR"+
+    (note?"&tn="+encodeURIComponent(note):"");
+  var box=$("qr");box.innerHTML="";
+  try{qr=new QRCode(box,{text:link,width:240,height:240,correctLevel:QRCode.CorrectLevel.M})}
+  catch(e){err.textContent="Could not build the QR.";return}
+  box.style.display="block";$("ph").style.display="none";
+  $("amt").style.display="block";$("amt").textContent="₹"+amt.toLocaleString("en-IN",{minimumFractionDigits:amt%1?2:0});
+  $("who").style.display="block";$("who").textContent=(name?name+" · ":"")+vpa;
+  $("copy").style.display="inline-block";$("open").style.display="inline-block";$("tip").style.display="block";
+}
+$("open").onclick=function(){if(link)window.location.href=link};
+$("go").onclick=make;
+["id","name","amount","note"].forEach(function(i){$(i).addEventListener("keydown",function(e){if(e.key==="Enter")make()})});
+$("copy").onclick=function(){
+  try{navigator.clipboard.writeText(link).then(function(){$("copy").textContent="Copied ✓";setTimeout(function(){$("copy").textContent="Copy UPI link"},1500)})}catch(e){}
+};
+</script>
+</body>
+</html>
